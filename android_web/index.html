@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yerel Sesli Asistan</title>
+  <style>
+    :root {
+      --bg-a: #041f2a;
+      --bg-b: #0c5a72;
+      --panel: rgba(5, 16, 20, 0.72);
+      --line: rgba(255, 255, 255, 0.12);
+      --txt: #e6f5ff;
+      --soft: #a7d0e4;
+      --accent: #45e6b1;
+      --accent-2: #f9cb6e;
+      --danger: #ff8f8f;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: "Trebuchet MS", "Verdana", sans-serif;
+      color: var(--txt);
+      background:
+        radial-gradient(circle at 80% -10%, #26cf95 0%, transparent 35%),
+        radial-gradient(circle at 12% 110%, #1f8db4 0%, transparent 40%),
+        linear-gradient(135deg, var(--bg-a), var(--bg-b));
+      display: grid;
+      place-items: center;
+      padding: 14px;
+    }
+
+    .app {
+      width: min(860px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--panel);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 8px;
+    }
+
+    .title {
+      font-size: clamp(20px, 4.8vw, 32px);
+      letter-spacing: 0.2px;
+      margin: 0;
+      color: #f7fffc;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--soft);
+      font-size: 14px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .field {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.22);
+      color: var(--txt);
+      padding: 10px;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    .chat {
+      height: min(60vh, 540px);
+      overflow: auto;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+
+    .bubble {
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      max-width: 85%;
+      line-height: 1.35;
+      border: 1px solid var(--line);
+      word-break: break-word;
+      animation: pop 180ms ease-out;
+    }
+
+    .bubble.user {
+      justify-self: end;
+      background: rgba(249, 203, 110, 0.14);
+      border-color: rgba(249, 203, 110, 0.4);
+      color: #fff4d1;
+    }
+
+    .bubble.bot {
+      justify-self: start;
+      background: rgba(69, 230, 177, 0.12);
+      border-color: rgba(69, 230, 177, 0.4);
+      color: #d8fff0;
+    }
+
+    .meta {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--soft);
+      opacity: 0.85;
+    }
+
+    .composer {
+      border-top: 1px solid var(--line);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr auto auto auto;
+      align-items: center;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 700;
+      color: #ecfff8;
+      background: rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      min-width: 94px;
+      transition: transform 110ms ease, border-color 110ms ease, background 110ms ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); border-color: rgba(255, 255, 255, 0.45); }
+    .btn:active { transform: translateY(0); }
+    .btn.primary { background: rgba(69, 230, 177, 0.24); border-color: rgba(69, 230, 177, 0.5); }
+    .btn.warn { background: rgba(255, 143, 143, 0.18); border-color: rgba(255, 143, 143, 0.5); }
+    .btn.active { background: rgba(249, 203, 110, 0.26); border-color: rgba(249, 203, 110, 0.6); color: #fff7e3; }
+
+    .status {
+      min-height: 18px;
+      font-size: 12px;
+      color: var(--soft);
+      padding-left: 4px;
+    }
+
+    .status.error { color: var(--danger); }
+    .status.ok { color: #afffd8; }
+
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(4px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 760px) {
+      .controls { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr 1fr; }
+      .row .btn { min-width: 0; }
+      .chat { height: 55vh; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <h1 class="title">Yerel Sesli Asistan</h1>
+      <p class="sub">Android mikrofondan konus, cevap bilgisayarindaki Ollama + Piper'dan sesli gelsin.</p>
+      <div class="controls">
+        <select id="lang" class="field">
+          <option value="tr-TR" selected>Turkce (tr-TR)</option>
+          <option value="en-US">English (en-US)</option>
+        </select>
+        <input id="session" class="field" placeholder="Session ID (bos birak: otomatik)">
+      </div>
+    </header>
+
+    <section id="chat" class="chat"></section>
+
+    <footer class="composer">
+      <div class="row">
+        <input id="text" class="field" placeholder="Yaz veya mikrofona basip konus...">
+        <button id="mic" class="btn">Mikrofon</button>
+        <button id="send" class="btn primary">Gonder</button>
+        <button id="reset" class="btn warn">Reset</button>
+      </div>
+      <div id="status" class="status"></div>
+    </footer>
+  </main>
+
+  <script>
+    const chatEl = document.getElementById("chat");
+    const statusEl = document.getElementById("status");
+    const textEl = document.getElementById("text");
+    const sessionEl = document.getElementById("session");
+    const langEl = document.getElementById("lang");
+    const micBtn = document.getElementById("mic");
+    const sendBtn = document.getElementById("send");
+    const resetBtn = document.getElementById("reset");
+
+    const STORAGE_KEY = "local_voice_session_id";
+    let sessionId = localStorage.getItem(STORAGE_KEY) || "";
+    let currentAudio = null;
+    let isListening = false;
+
+    if (sessionId) {
+      sessionEl.value = sessionId;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const hasSpeechRecognition = Boolean(SpeechRecognition);
+    let recognition = null;
+
+    function setStatus(message, mode = "") {
+      statusEl.textContent = message;
+      statusEl.className = "status" + (mode ? " " + mode : "");
+    }
+
+    function addBubble(role, text, meta = "") {
+      const bubble = document.createElement("article");
+      bubble.className = "bubble " + role;
+      bubble.textContent = text;
+      if (meta) {
+        const metaEl = document.createElement("div");
+        metaEl.className = "meta";
+        metaEl.textContent = meta;
+        bubble.appendChild(metaEl);
+      }
+      chatEl.appendChild(bubble);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function detectLangPrefix(langCode) {
+      return langCode && langCode.toLowerCase().startsWith("en") ? "en" : "tr";
+    }
+
+    async function sendMessage(text) {
+      const clean = (text || "").trim();
+      if (!clean) return;
+
+      const typedSession = sessionEl.value.trim();
+      if (typedSession) {
+        sessionId = typedSession;
+      }
+
+      addBubble("user", clean);
+      textEl.value = "";
+      setStatus("Asistan dusunuyor...", "ok");
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: clean,
+            session_id: sessionId || null,
+            detected_lang: detectLangPrefix(langEl.value)
+          })
+        });
+
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          const message =
+            errBody.error ||
+            errBody.detail ||
+            errBody.message ||
+            ("HTTP " + res.status);
+          throw new Error(message);
+        }
+
+        const data = await res.json();
+        sessionId = data.session_id;
+        sessionEl.value = sessionId;
+        localStorage.setItem(STORAGE_KEY, sessionId);
+
+        addBubble("bot", data.reply_text);
+
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio = null;
+        }
+        currentAudio = new Audio(data.audio_url + "?t=" + Date.now());
+        await currentAudio.play();
+        setStatus("Sesli cevap tamamlandi.", "ok");
+      } catch (err) {
+        setStatus("Hata: " + err.message, "error");
+      }
+    }
+
+    function setupSpeechRecognition() {
+      if (!hasSpeechRecognition) {
+        micBtn.disabled = true;
+        micBtn.title = "Tarayici SpeechRecognition desteklemiyor.";
+        setStatus("Tarayici mikrofon STT desteklemiyor. Metin kutusu ile devam edebilirsiniz.", "error");
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        isListening = true;
+        micBtn.classList.add("active");
+        micBtn.textContent = "Dinliyor...";
+        setStatus("Dinliyorum, konusabilirsin.", "ok");
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        micBtn.classList.remove("active");
+        micBtn.textContent = "Mikrofon";
+      };
+
+      recognition.onerror = (event) => {
+        isListening = false;
+        micBtn.classList.remove("active");
+        micBtn.textContent = "Mikrofon";
+        setStatus("Mikrofon hatasi: " + event.error, "error");
+      };
+
+      recognition.onresult = (event) => {
+        const text = event.results[0][0].transcript || "";
+        textEl.value = text;
+        sendMessage(text);
+      };
+    }
+
+    micBtn.addEventListener("click", () => {
+      if (!recognition) return;
+      if (isListening) {
+        recognition.stop();
+        return;
+      }
+      recognition.lang = langEl.value;
+      recognition.start();
+    });
+
+    sendBtn.addEventListener("click", () => sendMessage(textEl.value));
+    textEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage(textEl.value);
+      }
+    });
+
+    resetBtn.addEventListener("click", async () => {
+      const value = sessionEl.value.trim() || sessionId;
+      if (!value) {
+        setStatus("Reset icin session yok.", "error");
+        return;
+      }
+      try {
+        await fetch("/api/reset", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: value })
+        });
+      } catch (_) {
+      }
+      sessionId = "";
+      sessionEl.value = "";
+      localStorage.removeItem(STORAGE_KEY);
+      chatEl.innerHTML = "";
+      setStatus("Sohbet sifirlandi.", "ok");
+    });
+
+    setupSpeechRecognition();
+    addBubble("bot", "Baglanti hazir. Mikrofon tusuna basip konusabilirsin.");
+  </script>
+</body>
+</html>

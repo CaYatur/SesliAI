@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Andi Voice</string>
+    <string name="subtitle">Sesli asistan</string>
+    <string name="status_ready">Mikrofona dokun ve konus.</string>
+    <string name="status_ready_short">Hazir.</string>
+    <string name="status_no_speech">Bu cihazda ses tanima kullanilamiyor.</string>
+    <string name="status_listening">Dinliyorum...</string>
+    <string name="status_thinking">Dusunuyorum...</string>
+    <string name="status_listen_error">Dinleme hatasi. Tekrar dene.</string>
+    <string name="status_not_understood">Anlayamadim. Tekrar dener misin?</string>
+    <string name="status_speech_not_ready">Ses tanima hazir degil.</string>
+    <string name="status_audio_error">Ses calma hatasi.</string>
+    <string name="status_audio_open_error">Ses acilamadi.</string>
+    <string name="status_mic_permission">Mikrofon izni gerekli.</string>
+    <string name="status_error_prefix">Hata: </string>
+    <string name="you_prefix">Sen: </string>
+    <string name="bot_prefix">Asistan: </string>
+    <string name="mic_desc">Mikrofon</string>
+</resources>

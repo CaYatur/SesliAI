@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_app"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingLeft="14dp"
+    android:paddingTop="10dp"
+    android:paddingRight="14dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textColor="#F8FCFF"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/subtitleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="@string/subtitle"
+        android:textColor="#BFD9EA"
+        android:textSize="10sp" />
+
+    <LinearLayout
+        android:id="@+id/statusCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_status_panel"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="3"
+            android:text="@string/status_ready"
+            android:textColor="#F3F9FF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="7dp"
+            android:background="#30FFFFFF" />
+
+        <TextView
+            android:id="@+id/userText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:gravity="center"
+            android:maxLines="3"
+            android:text=""
+            android:textColor="#D1E8FF"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <FrameLayout
+        android:layout_width="92dp"
+        android:layout_height="92dp"
+        android:layout_marginBottom="8dp"
+        android:foregroundGravity="center"
+        android:gravity="center">
+
+        <View
+            android:id="@+id/micHalo"
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:background="@drawable/bg_mic_halo" />
+
+        <ImageButton
+            android:id="@+id/micButton"
+            android:layout_width="68dp"
+            android:layout_height="68dp"
+            android:background="@drawable/bg_mic_button"
+            android:contentDescription="@string/mic_desc"
+            android:padding="14dp"
+            android:src="@android:drawable/ic_btn_speak_now"
+            android:tint="#F7FFFD" />
+    </FrameLayout>
+
+</LinearLayout>
